@@ -182,22 +182,22 @@ Work through slices in order. Each slice is self-contained and produces a shippa
 
 ---
 
-### 🔲 Slice 1 — Supabase Setup & First Deploy
+### ✅ Slice 1 — Supabase Setup & First Deploy (DONE)
 
 **Goal:** Live GitHub Pages site connected to real Supabase.
 
 Tasks:
 
-- [ ] Create Supabase project (free tier)
-- [ ] Apply `001_initial_schema.sql` in Supabase SQL editor
-- [ ] Run `seed.sql`
-- [ ] Enable `pg_cron` extension in Supabase dashboard
-- [ ] Set up Supabase Database Webhook → `notify-admin` function on `INSERT events`
-- [ ] Set Edge Function env secrets: `RESEND_API_KEY`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`
-- [ ] Set GitHub repository secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
-- [ ] Configure GitHub Pages in repo settings (source: GitHub Actions)
-- [ ] Push to `main` → verify deploy at `https://<user>.github.io/CubanSocialV2/`
-- [ ] Manually insert one test event in Supabase and verify it appears on the live feed
+- [x] Create Supabase project (free tier)
+- [x] Apply `001_initial_schema.sql` in Supabase SQL editor
+- [x] Run `seed.sql`
+- [x] Enable `pg_cron` extension in Supabase dashboard
+- [x] Set up Supabase Database Webhook → `notify-admin` function on `INSERT events`
+- [x] Set Edge Function env secrets: `RESEND_API_KEY`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`
+- [x] Set GitHub repository secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+- [x] Configure GitHub Pages in repo settings (source: GitHub Actions)
+- [x] Push to `main` → verify deploy at `https://<user>.github.io/CubanSocialV2/`
+- [x] Manually insert one test event in Supabase and verify it appears on the live feed
 
 ---
 
@@ -299,9 +299,9 @@ Tasks:
 ## Current Status
 
 **Slice 0 complete.** Walking skeleton scaffolded.
-**Slice 1 code complete.** Schema files ready to apply. Manual infrastructure steps remain.
+**Slice 1 complete.** Live site on GitHub Pages connected to Supabase. Schema applied, seed data loaded, Edge Functions deployed, pg_cron running, test event verified.
 
-**Next action:** Follow the Slice 1 setup steps below, then verify the live feed.
+**Next action:** Slice 2 — polish the public event feed (filters, geolocation, calendar view, event detail modal).
 
 ---
 
