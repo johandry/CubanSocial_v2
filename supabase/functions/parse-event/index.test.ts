@@ -382,24 +382,38 @@ Deno.test('returns incomplete parse response from n8n including questions array'
 
 Deno.test('returns 503 upstream_unavailable when n8n is unreachable (network error)', async () => {
   setEnv();
-  const res  = await withNetworkErrorMock(() =>
-    handler(parseRequest('Timba Night Saturday 8pm San Diego')),
-  );
-  const body = await res.json();
+  // Silence the expected console.error logged when the upstream throws.
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const res  = await withNetworkErrorMock(() =>
+      handler(parseRequest('Timba Night Saturday 8pm San Diego')),
+    );
+    const body = await res.json();
 
-  assertEquals(res.status, 503);
-  assertEquals(body.error, 'upstream_unavailable');
+    assertEquals(res.status, 503);
+    assertEquals(body.error, 'upstream_unavailable');
+  } finally {
+    console.error = originalError;
+  }
 });
 
 Deno.test('503 response does not expose n8n URL or token', async () => {
   setEnv({ N8N_WEBHOOK_URL: 'https://secret-n8n-url.example.com/abc' });
-  const res  = await withNetworkErrorMock(() =>
-    handler(parseRequest('Timba Night Saturday 8pm San Diego')),
-  );
-  const text = await res.text();
+  // Silence the expected console.error logged when the upstream throws.
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const res  = await withNetworkErrorMock(() =>
+      handler(parseRequest('Timba Night Saturday 8pm San Diego')),
+    );
+    const text = await res.text();
 
-  assertEquals(text.includes('secret-n8n-url.example.com'), false,
-    'The n8n webhook URL must never appear in the response');
+    assertEquals(text.includes('secret-n8n-url.example.com'), false,
+      'The n8n webhook URL must never appear in the response');
+  } finally {
+    console.error = originalError;
+  }
 });
 
 // ---------------------------------------------------------------------------

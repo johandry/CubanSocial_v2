@@ -1,0 +1,15 @@
+{
+  "name": "cubansocial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test":       "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "vitest":              "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "jsdom":               "^25.0.0"
+  }
+}

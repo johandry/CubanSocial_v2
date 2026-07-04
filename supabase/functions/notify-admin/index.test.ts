@@ -322,8 +322,15 @@ Deno.test('handles malformed JSON body: returns 500', async () => {
     body:    '{ not valid json <<<',
   });
 
-  const res = await withMockFetch(mock, () => handler(req));
-  assertEquals(res.status, 500);
+  // Silence the expected console.error from the JSON parse failure.
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const res = await withMockFetch(mock, () => handler(req));
+    assertEquals(res.status, 500);
+  } finally {
+    console.error = originalError;
+  }
 });
 
 Deno.test('handles empty body: returns 500', async () => {
@@ -335,8 +342,15 @@ Deno.test('handles empty body: returns 500', async () => {
     body:   '',
   });
 
-  const res = await withMockFetch(mock, () => handler(req));
-  assertEquals(res.status, 500);
+  // Silence the expected console.error from the empty-body parse failure.
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const res = await withMockFetch(mock, () => handler(req));
+    assertEquals(res.status, 500);
+  } finally {
+    console.error = originalError;
+  }
 });
 
 Deno.test('continues processing and returns "ok" even if one Resend call fails', async () => {

@@ -605,12 +605,13 @@ async function loadCalendarEvents() {
 }
 
 /**
- * Builds a Map<'YYYY-MM-DD', Event[]> from the current calEvents array.
- * Used for O(1) lookup when rendering calendar cells.
+ * Builds a Map<'YYYY-MM-DD', Event[]> from an events array.
+ * Defaults to state.calEvents. Accepts an explicit array for testing.
+ * @param {Array} [events]
  */
-function buildEventsByDate() {
+function buildEventsByDate(events = state.calEvents) {
   const map = new Map();
-  for (const ev of state.calEvents) {
+  for (const ev of events) {
     const key = ev.start_at.slice(0, 10); // 'YYYY-MM-DD'
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(ev);
@@ -1304,4 +1305,32 @@ async function init() {
   await handleDeepLink();
 }
 
-init().catch(console.error);
+// Skip auto-init during Vitest runs so tests can import pure helpers cleanly.
+if (import.meta.env?.MODE !== 'test') {
+  init().catch(console.error);
+}
+
+// ---------------------------------------------------------------------------
+// Named exports — pure helpers for unit testing.
+// The rest of this module is DOM-coupled and tested via integration tests.
+// ---------------------------------------------------------------------------
+export {
+  // formatting
+  fmtEventDate,
+  fmtTime,
+  fmtDateLong,
+  // cost badge
+  costLabel,
+  costTooltipHtml,
+  // organizer contact link
+  buildOrganizerLink,
+  // calendar helpers
+  buildEventsByDate,
+  dotColor,
+  // OG meta (DOM side-effect, testable via jsdom)
+  updateOgMeta,
+  // card renderer (DOM side-effect, testable via jsdom)
+  renderCard,
+  // mutable state — tests can seed it before calling DOM functions
+  state,
+};

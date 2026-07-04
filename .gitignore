@@ -1,3 +1,5 @@
 .env
 .secrets
 supabase/.temp
+node_modules
+coverage
