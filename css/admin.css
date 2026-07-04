@@ -1,0 +1,50 @@
+/* CubanSocial — Admin Dashboard Styles */
+
+.admin-login {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--blue), #003d80);
+}
+.admin-login__card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 2.5rem; width: min(420px, 94vw);
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.admin-login__card h1 { font-size: 1.8rem; margin-bottom: 1.5rem; }
+
+.admin-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding-block: 2rem; }
+@media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+
+.admin-panel {
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.admin-panel__header {
+  background: var(--blue); color: var(--white);
+  padding: .85rem 1.25rem; display: flex; align-items: center; justify-content: space-between;
+}
+.admin-panel__header h2 { font-size: 1rem; }
+.badge {
+  background: var(--red); color: var(--white);
+  font-size: .8rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 99px; min-width: 22px; text-align: center;
+}
+
+.event-review-card {
+  border-bottom: 1px solid #f0f0f0; padding: 1rem 1.25rem;
+}
+.event-review-card:last-child { border-bottom: none; }
+.event-review-card__title { font-weight: 700; margin-bottom: .25rem; }
+.event-review-card__meta  { font-size: .85rem; color: var(--muted); margin-bottom: .6rem; }
+.event-review-card__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.draft-panel {
+  background: #f9f7f3; border: 1.5px solid #e0dbd0;
+  border-radius: 8px; padding: 1rem; margin-top: 1rem;
+}
+.draft-panel h3 { font-size: .9rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); margin-bottom: .5rem; }
+.draft-panel textarea {
+  width: 100%; resize: vertical; min-height: 120px;
+  font-family: var(--font-body); font-size: .9rem; padding: .6rem;
+  border: 1.5px solid #ddd; border-radius: 6px; background: var(--white);
+}

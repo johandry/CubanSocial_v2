@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CubanSocial — Find Latin Dance Events Near You</title>
+  <meta name="description" content="Discover Cuban Salsa (Timba), Bachata, and Latin dance events near you. CubanSocial is the free event board for Latin dance communities." />
+
+  <!-- OG / Social sharing (dynamic values injected by JS per-event) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="CubanSocial" />
+  <meta property="og:title"       content="CubanSocial — Find Latin Dance Events Near You" />
+  <meta property="og:description" content="Discover Cuban Salsa, Bachata, and Latin dance events near you." />
+  <meta property="og:url"         content="https://cubansocial.com/" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase JS SDK (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Umami Analytics (privacy-friendly, no PII) -->
+  <!-- <script defer data-website-id="__UMAMI_SITE_ID__" src="https://cloud.umami.is/script.js"></script> -->
+
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header" role="banner">
+    <div class="container site-header__inner">
+      <a href="/" class="site-header__logo" aria-label="CubanSocial home">
+        Cuban<span>Social</span>
+      </a>
+
+      <div class="city-selector" role="group" aria-label="Select city">
+        <label for="city-select">📍</label>
+        <select id="city-select" aria-label="Select your city">
+          <option value="">Detecting location…</option>
+        </select>
+      </div>
+
+      <nav class="site-header__nav" aria-label="Main navigation">
+        <a href="#submit-event" class="btn btn--primary" id="submit-event-cta">
+          + Submit Event
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" aria-label="Welcome">
+    <div class="container">
+      <h1>Find Your Next Dance</h1>
+      <p class="hero__tagline">Cuban Salsa, Timba, Bachata & more — all in one place.</p>
+
+      <div class="hero__location-prompt" id="location-prompt" aria-live="polite">
+        <button class="btn btn--primary" id="allow-location-btn">
+          📍 Find events near me
+        </button>
+        <p class="hero__location-status" id="location-status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FILTER BAR ===================== -->
+  <section class="filter-bar" aria-label="Event filters">
+    <div class="container filter-bar__inner">
+      <select id="filter-style" aria-label="Filter by dance style">
+        <option value="">All Styles</option>
+        <!-- populated by JS -->
+      </select>
+
+      <select id="filter-type" aria-label="Filter by event type">
+        <option value="">All Types</option>
+        <option value="studio_local">Studio / Org</option>
+        <option value="social_local">Private Social</option>
+        <option value="congress_national">National Congress</option>
+        <option value="congress_international">International Congress</option>
+      </select>
+
+      <input type="date" id="filter-date-from" aria-label="Events from date" />
+      <input type="date" id="filter-date-to"   aria-label="Events to date" />
+
+      <label class="filter-toggle" for="filter-featured">
+        <input type="checkbox" id="filter-featured" />
+        ⭐ Featured only
+      </label>
+
+      <label class="filter-toggle" for="filter-nearby">
+        <input type="checkbox" id="filter-nearby" />
+        📍 Nearby cities (~80 mi)
+      </label>
+    </div>
+  </section>
+
+  <!-- ===================== MAIN FEED ===================== -->
+  <main id="main-content" class="feed-section" aria-label="Event feed">
+    <div class="container">
+
+      <!-- Featured row -->
+      <section class="featured-row" id="featured-row" aria-label="Featured events" hidden>
+        <p class="featured-row__title"><span>⭐</span> Featured Events</p>
+        <div class="cards-grid" id="featured-cards" role="list"></div>
+      </section>
+
+      <!-- All events -->
+      <section aria-label="Upcoming events">
+        <div class="cards-grid" id="events-cards" role="list">
+          <div class="state-message">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Loading events…</p>
+          </div>
+        </div>
+
+        <div class="load-more" id="load-more-container" hidden>
+          <button class="btn btn--secondary" id="load-more-btn">Load more events</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <nav class="site-footer__links" aria-label="Footer navigation">
+        <a href="/">Home</a>
+        <a href="#submit-event">Submit Event</a>
+        <a href="/admin.html">Admin</a>
+        <a href="https://instagram.com/cubansocial" target="_blank" rel="noopener">Instagram</a>
+      </nav>
+      <p>© 2026 CubanSocial.com — Free forever for dancers.</p>
+    </div>
+  </footer>
+
+  <!-- ===================== EVENT DETAIL MODAL ===================== -->
+  <div class="modal-overlay" id="event-modal" role="dialog" aria-modal="true" aria-labelledby="modal-event-name" hidden>
+    <div class="modal">
+      <button class="modal__close" id="modal-close-btn" aria-label="Close event details">✕</button>
+      <div id="modal-content"><!-- populated by JS --></div>
+    </div>
+  </div>
+
+  <!-- ===================== SUBMIT EVENT MODAL ===================== -->
+  <div class="modal-overlay" id="submit-modal" role="dialog" aria-modal="true" aria-labelledby="submit-modal-title" hidden>
+    <div class="modal">
+      <button class="modal__close" id="submit-modal-close" aria-label="Close submit form">✕</button>
+      <h2 id="submit-modal-title">Submit an Event</h2>
+
+      <div class="tabs" role="tablist" aria-label="Submission method">
+        <button class="tab-btn is-active" role="tab" aria-selected="true"  id="tab-paste" aria-controls="panel-paste">
+          📋 Paste Text
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" id="tab-manual" aria-controls="panel-manual">
+          ✏️ Fill Manually
+        </button>
+      </div>
+
+      <!-- Paste tab -->
+      <div role="tabpanel" id="panel-paste" aria-labelledby="tab-paste">
+        <div class="form-group">
+          <label for="paste-textarea">Paste WhatsApp or social media event text</label>
+          <textarea id="paste-textarea" rows="6" placeholder="Paste the event announcement here…"></textarea>
+        </div>
+        <div style="display:flex; gap:.75rem; margin-top:.75rem; flex-wrap:wrap;">
+          <button class="btn btn--primary" id="parse-btn">Parse Event</button>
+          <button class="btn btn--secondary" id="ai-assist-btn" hidden>✨ Try AI Assist</button>
+        </div>
+        <p id="parse-status" style="margin-top:.5rem; font-size:.85rem; color:var(--muted);" aria-live="polite"></p>
+        <div id="clarification-questions" style="margin-top:1rem;"></div>
+      </div>
+
+      <!-- Manual / Shared form fields -->
+      <div role="tabpanel" id="panel-manual" aria-labelledby="tab-manual" hidden>
+        <!-- form fields rendered by JS to avoid duplication -->
+      </div>
+
+      <!-- Shared event form (always visible below tabs) -->
+      <form id="event-form" novalidate style="margin-top:1.5rem;">
+        <!-- Fields injected by js/submit.js -->
+        <div id="event-form-fields"></div>
+
+        <!-- Honeypot (bot protection — hidden from humans) -->
+        <div class="visually-hidden" aria-hidden="true">
+          <input type="text" name="website" id="hp-field" autocomplete="off" tabindex="-1" />
+        </div>
+
+        <div style="margin-top:1.5rem; display:flex; gap:.75rem; flex-wrap:wrap;">
+          <button type="submit" class="btn btn--primary">Submit Event</button>
+          <button type="button" class="btn btn--secondary" id="cancel-submit-btn">Cancel</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ===================== TOAST CONTAINER ===================== -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- App JS (ES modules) -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

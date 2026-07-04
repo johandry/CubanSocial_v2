@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — CubanSocial</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <!-- Login screen (shown until auth confirmed) -->
+  <div id="login-screen" class="admin-login">
+    <div class="admin-login__card">
+      <h1>CubanSocial Admin</h1>
+      <form id="login-form" novalidate>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required autocomplete="email" />
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn--primary" style="width:100%;">Sign In</button>
+        <p id="login-error" style="color:var(--red); font-size:.9rem; margin-top:.75rem;" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard (shown after auth) -->
+  <div id="dashboard" hidden>
+
+    <header class="site-header" role="banner">
+      <div class="container site-header__inner">
+        <a href="/" class="site-header__logo">Cuban<span>Social</span></a>
+        <span style="color:var(--yellow); font-size:.9rem;" id="admin-greeting"></span>
+        <button class="btn btn--secondary btn--sm" id="logout-btn">Sign out</button>
+      </div>
+    </header>
+
+    <main class="container admin-layout">
+
+      <!-- Pending queue -->
+      <section class="admin-panel" aria-label="Pending events">
+        <div class="admin-panel__header">
+          <h2>Pending Review</h2>
+          <span class="badge" id="pending-count" aria-label="pending count">0</span>
+        </div>
+        <div id="pending-list">
+          <p style="padding:1.25rem; color:var(--muted);">Loading…</p>
+        </div>
+      </section>
+
+      <!-- Published events -->
+      <section class="admin-panel" aria-label="Published events">
+        <div class="admin-panel__header">
+          <h2>Published Events</h2>
+        </div>
+        <div id="published-list">
+          <p style="padding:1.25rem; color:var(--muted);">Loading…</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- Edit event modal -->
+  <div class="modal-overlay" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" hidden>
+    <div class="modal">
+      <button class="modal__close" id="edit-modal-close" aria-label="Close edit form">✕</button>
+      <h2 id="edit-modal-title">Edit Event</h2>
+      <form id="edit-form" novalidate></form>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
