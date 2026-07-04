@@ -48,8 +48,10 @@ CubanSocialV2/
 │   └── admin.js                # Admin dashboard logic
 ├── supabase/
 │   ├── migrations/
-│   │   └── 001_initial_schema.sql   # Full schema + RLS + pg_cron job
+│   │   ├── 001_initial_schema.sql   # Full schema + RLS (all PRD v1.2 fields)
+│   │   └── 002_pg_cron_setup.sql   # pg_cron jobs (apply after enabling extension)
 │   ├── seed.sql                     # Dance styles + cities seed data
+│   ├── test-event.sql               # Verification helper — run after first deploy
 │   └── functions/
 │       ├── notify-admin/index.ts         # DB Webhook → Resend email to admins
 │       ├── parse-event/index.ts          # Proxy to n8n AI Agent webhook
@@ -296,9 +298,10 @@ Tasks:
 
 ## Current Status
 
-**Slice 0 complete.** All files scaffolded. No Supabase project connected yet.
+**Slice 0 complete.** Walking skeleton scaffolded.
+**Slice 1 code complete.** Schema files ready to apply. Manual infrastructure steps remain.
 
-**Next action:** Work through Slice 1 — create Supabase project, apply schema + seed, set secrets, deploy.
+**Next action:** Follow the Slice 1 setup steps below, then verify the live feed.
 
 ---
 
