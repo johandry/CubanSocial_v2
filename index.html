@@ -6,12 +6,13 @@
   <title>CubanSocial — Find Latin Dance Events Near You</title>
   <meta name="description" content="Discover Cuban Salsa (Timba), Bachata, and Latin dance events near you. CubanSocial is the free event board for Latin dance communities." />
 
-  <!-- OG / Social sharing (dynamic values injected by JS per-event) -->
+  <!-- OG / Social sharing — JS updates these per-event when a modal opens -->
   <meta property="og:type"        content="website" />
   <meta property="og:site_name"   content="CubanSocial" />
   <meta property="og:title"       content="CubanSocial — Find Latin Dance Events Near You" />
   <meta property="og:description" content="Discover Cuban Salsa, Bachata, and Latin dance events near you." />
   <meta property="og:url"         content="https://cubansocial.com/" />
+  <meta property="og:image"       content="" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -67,57 +68,92 @@
 
   <!-- ===================== FILTER BAR ===================== -->
   <section class="filter-bar" aria-label="Event filters">
-    <div class="container filter-bar__inner">
-      <select id="filter-style" aria-label="Filter by dance style">
-        <option value="">All Styles</option>
-        <!-- populated by JS -->
-      </select>
+    <div class="container">
+      <div class="filter-bar__inner">
 
-      <select id="filter-type" aria-label="Filter by event type">
-        <option value="">All Types</option>
-        <option value="studio_local">Studio / Org</option>
-        <option value="social_local">Private Social</option>
-        <option value="congress_national">National Congress</option>
-        <option value="congress_international">International Congress</option>
-      </select>
+        <select id="filter-style" aria-label="Filter by dance style">
+          <option value="">All Styles</option>
+          <!-- populated by JS -->
+        </select>
 
-      <input type="date" id="filter-date-from" aria-label="Events from date" />
-      <input type="date" id="filter-date-to"   aria-label="Events to date" />
+        <select id="filter-type" aria-label="Filter by event type">
+          <option value="">All Types</option>
+          <option value="studio_local">Studio / Org</option>
+          <option value="social_local">Private Social</option>
+          <option value="congress_national">National Congress</option>
+          <option value="congress_international">Intl. Congress</option>
+        </select>
 
-      <label class="filter-toggle" for="filter-featured">
-        <input type="checkbox" id="filter-featured" />
-        ⭐ Featured only
-      </label>
+        <input type="date" id="filter-date-from" aria-label="Events from date" />
+        <input type="date" id="filter-date-to"   aria-label="Events to date" />
 
-      <label class="filter-toggle" for="filter-nearby">
-        <input type="checkbox" id="filter-nearby" />
-        📍 Nearby cities (~80 mi)
-      </label>
-    </div>
+        <label class="filter-toggle" for="filter-featured">
+          <input type="checkbox" id="filter-featured" />
+          ⭐ Featured only
+        </label>
+
+        <!-- Radius selector — activates automatically once geolocation is granted -->
+        <div class="radius-selector" id="radius-selector" aria-label="Distance radius">
+          <label for="filter-radius" class="radius-selector__label">📍 Within</label>
+          <select id="filter-radius" aria-label="Radius in miles">
+            <option value="10">10 mi</option>
+            <option value="25" selected>25 mi</option>
+            <option value="50">50 mi</option>
+            <option value="80">80 mi</option>
+            <option value="0">Any distance</option>
+          </select>
+        </div>
+
+      </div><!-- /.filter-bar__inner -->
+
+      <!-- Grid / Calendar view toggle -->
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button class="view-toggle-btn is-active" id="view-grid-btn" aria-pressed="true" title="Grid view">
+          ☰ Grid
+        </button>
+        <button class="view-toggle-btn" id="view-calendar-btn" aria-pressed="false" title="Calendar view">
+          📅 Calendar
+        </button>
+      </div>
+
+    </div><!-- /.container -->
   </section>
 
-  <!-- ===================== MAIN FEED ===================== -->
+  <!-- ===================== MAIN CONTENT ===================== -->
   <main id="main-content" class="feed-section" aria-label="Event feed">
     <div class="container">
 
-      <!-- Featured row -->
-      <section class="featured-row" id="featured-row" aria-label="Featured events" hidden>
-        <p class="featured-row__title"><span>⭐</span> Featured Events</p>
-        <div class="cards-grid" id="featured-cards" role="list"></div>
-      </section>
-
-      <!-- All events -->
-      <section aria-label="Upcoming events">
+      <!-- ---- GRID VIEW ---- -->
+      <section id="grid-section" aria-label="Upcoming events">
         <div class="cards-grid" id="events-cards" role="list">
           <div class="state-message">
             <div class="spinner" aria-hidden="true"></div>
             <p>Loading events…</p>
           </div>
         </div>
-
         <div class="load-more" id="load-more-container" hidden>
           <button class="btn btn--secondary" id="load-more-btn">Load more events</button>
         </div>
+      </section>
+
+      <!-- ---- CALENDAR VIEW ---- -->
+      <section id="calendar-section" aria-label="Calendar view" hidden>
+        <!-- Nav bar: prev / title / next / today -->
+        <div class="cal-header" id="cal-header">
+          <button class="btn btn--secondary btn--sm" id="cal-prev-btn" aria-label="Previous month">&#8249;</button>
+          <h2 class="cal-title" id="cal-title">Month Year</h2>
+          <button class="btn btn--secondary btn--sm" id="cal-next-btn" aria-label="Next month">&#8250;</button>
+          <button class="btn btn--secondary btn--sm" id="cal-today-btn">Today</button>
+        </div>
+        <!-- Spinner shown while fetching -->
+        <div class="state-message" id="cal-loading" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Loading calendar…</p>
+        </div>
+        <!-- Month grid (desktop) / 3-day strip (mobile) rendered by JS -->
+        <div id="cal-grid-container" aria-live="polite"></div>
+        <!-- Day event panel — shown below grid on day-cell click -->
+        <div class="cal-day-panel" id="cal-day-panel" hidden aria-live="polite"></div>
       </section>
 
     </div>

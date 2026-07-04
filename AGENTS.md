@@ -201,25 +201,25 @@ Tasks:
 
 ---
 
-### 🔲 Slice 2 — Public Event Feed (Polish)
+### ✅ Slice 2 — Public Event Feed (Polish)
 
 **Goal:** Feed is fully functional with all filters, geolocation, and event detail modal.
 
 Tasks:
 
-- [ ] Verify geolocation → auto-select nearest city
-- [ ] Verify radius dropdown (10 mi / 25 mi / 50 mi / 80 mi / Any)
-- [ ] Verify filter by dance style, event type, date range, featured
-- [ ] Featured badge on cards; "Featured only" toggle (off by default); all events in same grid
-- [ ] Grid / Calendar view toggle; month grid with event dots; day-click list panel; mobile 3-day strip
-- [ ] Cost notes `(?)` tooltip on cards and event detail modal
-- [ ] Event card — all card types: studio_local, social_local private, congress
-- [ ] Event detail modal: full info, Google Maps link, organizer contact link (Instagram/WhatsApp), Add to Calendar (.ics), Copy Link
-- [ ] Deep-link `/event/{id}` — reload page on event URL → opens modal
-- [ ] OG meta tags updated per-event when modal opens (`og:title`, `og:description`, `og:image`)
-- [ ] "Load more" (next 30-day window)
-- [ ] Empty state and loading spinner
-- [ ] Mobile responsive audit
+- [x] Verify geolocation → auto-select nearest city
+- [x] Verify radius dropdown (10 mi / 25 mi / 50 mi / 80 mi / Any)
+- [x] Verify filter by dance style, event type, date range, featured
+- [x] Featured badge on cards; "Featured only" toggle (off by default); all events in same grid
+- [x] Grid / Calendar view toggle; month grid with event dots; day-click list panel; mobile 3-day strip
+- [x] Cost notes `(?)` tooltip on cards and event detail modal
+- [x] Event card — all card types: studio_local, social_local private, congress
+- [x] Event detail modal: full info, Google Maps link, organizer contact link (Instagram/WhatsApp), Add to Calendar (.ics), Copy Link
+- [x] Deep-link `/event/{id}` — reload page on event URL → opens modal
+- [x] OG meta tags updated per-event when modal opens (`og:title`, `og:description`, `og:image`)
+- [x] "Load more" (next 30-day window)
+- [x] Empty state and loading spinner
+- [x] Mobile responsive audit
 
 ---
 
@@ -300,8 +300,9 @@ Tasks:
 
 **Slice 0 complete.** Walking skeleton scaffolded.
 **Slice 1 complete.** Live site on GitHub Pages connected to Supabase. Schema applied, seed data loaded, Edge Functions deployed, pg_cron running, test event verified.
+**Slice 2 complete.** Public event feed polished. Grid/Calendar views, radius dropdown, geolocation, featured badges, cost-notes tooltips, congress badges, enhanced event detail modal (organizer links, OG meta, Add to Calendar, Copy Link), deep-link support, load-more, empty state, and responsive audit all implemented.
 
-**Next action:** Slice 2 — polish the public event feed (filters, geolocation, calendar view, event detail modal).
+**Next action:** Slice 3 — Submit Event Form (full two-tab form with parse + AI assist).
 
 ---
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CubanSocial — Redirecting…</title>
+  <script>
+    /**
+     * GitHub Pages SPA deep-link redirect.
+     *
+     * GitHub Pages serves this 404.html for any path that doesn't match a
+     * real file (e.g. /event/{id}).  We encode the full path+search+hash in
+     * the ?path= query param and redirect to the root index.html, which then
+     * reads ?path= and replaces the URL + opens the correct modal.
+     */
+    (function () {
+      var loc = window.location;
+      var encoded = encodeURIComponent(loc.pathname + loc.search + loc.hash);
+      loc.replace(loc.origin + '/?path=' + encoded);
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting…</p>
+</body>
+</html>

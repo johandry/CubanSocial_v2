@@ -63,7 +63,8 @@ export function citiesWithinRadius(userCoords, cities, maxMiles = 80) {
   );
 }
 
-const STORAGE_KEY = 'cubansocial_city';
+const STORAGE_KEY        = 'cubansocial_city';
+const RADIUS_STORAGE_KEY = 'cubansocial_radius';
 
 export function saveCity(cityId) {
   try { localStorage.setItem(STORAGE_KEY, cityId); } catch {}
@@ -71,4 +72,23 @@ export function saveCity(cityId) {
 
 export function loadCity() {
   try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+}
+
+/**
+ * Persist the selected radius (miles; 0 = Any distance).
+ * @param {number} miles
+ */
+export function saveRadius(miles) {
+  try { localStorage.setItem(RADIUS_STORAGE_KEY, String(miles)); } catch {}
+}
+
+/**
+ * Restore the saved radius, defaulting to 25 miles (per PRD §6.3).
+ * @returns {number}
+ */
+export function loadRadius() {
+  try {
+    const v = localStorage.getItem(RADIUS_STORAGE_KEY);
+    return v !== null ? parseInt(v, 10) : 25;
+  } catch { return 25; }
 }

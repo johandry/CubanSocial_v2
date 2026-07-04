@@ -144,7 +144,7 @@ h3 { font-size: 1.1rem; }
 }
 .filter-toggle {
   display: flex; align-items: center; gap: .4rem;
-  font-size: .9rem; cursor: pointer; user-select: none;
+  font-size: .9rem; cursor: pointer; -webkit-user-select: none; user-select: none;
 }
 
 /* ---------- Event Feed ---------- */
@@ -306,11 +306,209 @@ h3 { font-size: 1.1rem; }
 }
 .tab-btn.is-active { color: var(--blue); border-color: var(--blue); }
 
+/* ---------- Filter bar layout (two-row: filters + view toggle) ---------- */
+.filter-bar .container { display: flex; flex-direction: column; gap: .65rem; padding-block: .85rem; }
+.filter-bar__inner { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.filter-bar select, .filter-bar input[type="date"] {
+  padding: .38rem .7rem; border: 1.5px solid #ccc; border-radius: 6px;
+  font-family: var(--font-body); font-size: .9rem; background: var(--white);
+}
+.filter-bar select:focus, .filter-bar input:focus {
+  outline: 2px solid var(--blue); border-color: var(--blue);
+}
+
+/* Radius selector */
+.radius-selector {
+  display: flex; align-items: center; gap: .35rem;
+  background: rgba(0,102,204,.07); padding: .3rem .65rem;
+  border-radius: 6px;
+}
+.radius-selector__label { font-size: .85rem; font-weight: 700; white-space: nowrap; }
+
+/* ---------- View toggle (Grid / Calendar) ---------- */
+.view-toggle {
+  display: flex; gap: 0; align-self: flex-start;
+}
+.view-toggle-btn {
+  padding: .38rem 1rem; border: 1.5px solid #ccc; background: var(--white);
+  font-family: var(--font-body); font-size: .85rem; font-weight: 700;
+  color: var(--muted); cursor: pointer; transition: background .15s, color .15s;
+}
+.view-toggle-btn:first-child { border-radius: 6px 0 0 6px; }
+.view-toggle-btn:last-child  { border-radius: 0 6px 6px 0; border-left: none; }
+.view-toggle-btn.is-active   { background: var(--blue); color: var(--white); border-color: var(--blue); }
+.view-toggle-btn:hover:not(.is-active) { background: #f0f0f0; }
+
+/* ---------- Congress badge ---------- */
+.tag--congress { background: rgba(204,34,0,.1); color: var(--red); }
+
+/* ---------- Cost tooltip ---------- */
+/* Uses [data-tooltip] attribute — no JS needed for hover display */
+.cost-tooltip {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid currentColor; border-radius: 99px;
+  font-size: .65rem; font-weight: 700; padding: 0 .35rem;
+  cursor: help; line-height: 1.5; position: relative;
+  vertical-align: middle; margin-left: .25rem;
+  color: var(--muted);
+}
+.cost-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: #333; color: #fff;
+  padding: .35rem .65rem; border-radius: 6px;
+  font-size: .75rem; font-weight: 400; line-height: 1.4;
+  white-space: normal; max-width: 220px; min-width: 120px;
+  text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+  z-index: 50;
+  /* Prevent tooltip from being cut off on the left edge */
+  left: auto; right: 0; transform: none;
+}
+.cost-tooltip:hover::after,
+.cost-tooltip:focus::after { opacity: 1; }
+
+/* ---------- Event detail modal ---------- */
+.modal-date  { font-weight: 700; color: var(--blue); margin: .4rem 0 .15rem; font-size: 1rem; }
+.modal-time  { color: var(--muted); font-size: .9rem; margin-bottom: .75rem; }
+.modal-detail {
+  display: flex; align-items: flex-start; gap: .4rem;
+  font-size: .95rem; margin: .4rem 0; color: var(--dark);
+}
+.map-link { color: var(--blue); font-size: .85rem; white-space: nowrap; }
+.modal-organizer { margin: .75rem 0; padding: .65rem; background: var(--bg); border-radius: 8px; }
+.organizer-link  { display: inline-flex; }
+.organizer-contact { font-size: .9rem; color: var(--muted); }
+.modal-styles    { display: flex; flex-wrap: wrap; gap: .3rem; margin: .75rem 0; }
+.modal-description {
+  margin: 1rem 0; line-height: 1.65; font-size: .95rem;
+  color: var(--dark); white-space: pre-wrap;
+}
+.modal-actions {
+  margin-top: 1.25rem; display: flex; gap: .75rem; flex-wrap: wrap;
+  padding-top: 1rem; border-top: 1px solid #f0f0f0;
+}
+
+/* ---------- Calendar view ---------- */
+.cal-header {
+  display: flex; align-items: center; gap: .65rem;
+  margin-bottom: 1rem;
+}
+.cal-title {
+  font-family: var(--font-display); font-size: 1.3rem;
+  flex: 1; text-align: center;
+}
+
+/* Month grid */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  border: 1px solid #e0e0e0; border-radius: var(--radius);
+  overflow: hidden;
+}
+.cal-weekday {
+  background: var(--blue); color: var(--white);
+  font-size: .75rem; font-weight: 700; text-align: center;
+  padding: .45rem .25rem; text-transform: uppercase; letter-spacing: .05em;
+}
+.cal-day {
+  min-height: 72px; padding: .35rem .4rem;
+  border-right: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8;
+  background: var(--white); transition: background .12s;
+  display: flex; flex-direction: column; gap: .25rem;
+}
+.cal-day:nth-child(7n) { border-right: none; }  /* last column */
+.cal-day--empty { background: #fafafa; }
+.cal-day--today .cal-day__num {
+  background: var(--blue); color: var(--white);
+  border-radius: 50%; width: 1.6rem; height: 1.6rem;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.cal-day--has-events { cursor: pointer; }
+.cal-day--has-events:hover { background: #f0f7ff; }
+.cal-day--selected { background: #e6f0ff; outline: 2px solid var(--blue); outline-offset: -2px; }
+.cal-day__num {
+  font-size: .8rem; font-weight: 700; color: var(--dark);
+  line-height: 1;
+}
+
+/* Dots row inside a calendar day cell */
+.cal-day__dots {
+  display: flex; flex-wrap: wrap; gap: 3px; align-items: center;
+}
+.cal-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.cal-dot--more {
+  font-size: .65rem; font-weight: 700; color: var(--muted);
+  width: auto; height: auto; border-radius: 0;
+}
+
+/* Day event panel (below calendar grid) */
+.cal-day-panel {
+  margin-top: 1.25rem; padding: 1rem 1.25rem;
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.cal-day-panel__title {
+  font-family: var(--font-display); font-size: 1.1rem; margin-bottom: .75rem;
+  color: var(--blue);
+}
+.cal-day-panel__empty { color: var(--muted); font-size: .95rem; }
+.cal-day-events {
+  list-style: none; display: flex; flex-direction: column; gap: .5rem;
+}
+.cal-day-event__btn {
+  width: 100%; display: flex; align-items: center; gap: .75rem;
+  background: none; border: none; cursor: pointer; text-align: left;
+  padding: .55rem .75rem; border-radius: 8px; font-family: var(--font-body);
+  transition: background .12s;
+}
+.cal-day-event__btn:hover { background: #f0f7ff; }
+.cal-day-event__time {
+  font-size: .85rem; font-weight: 700; color: var(--blue);
+  white-space: nowrap; min-width: 5rem;
+}
+.cal-day-event__name { font-size: .95rem; color: var(--dark); }
+
+/* ---------- Mobile 3-day strip ---------- */
+.cal-strip {
+  display: flex; gap: 0; border: 1px solid #e0e0e0; border-radius: var(--radius);
+  overflow: hidden; touch-action: pan-y;
+}
+.cal-strip-day {
+  flex: 1; min-height: 80px; padding: .6rem .4rem;
+  display: flex; flex-direction: column; align-items: center; gap: .25rem;
+  background: var(--white); border-right: 1px solid #e8e8e8;
+  transition: background .12s;
+}
+.cal-strip-day:last-child { border-right: none; }
+.cal-strip-day--center { background: #f0f7ff; }
+.cal-strip-day--today .cal-strip-day__num {
+  background: var(--blue); color: var(--white);
+  border-radius: 50%; width: 1.7rem; height: 1.7rem;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.cal-strip-day--has-events { cursor: pointer; }
+.cal-strip-day--has-events:hover { background: #e6f0ff; }
+.cal-strip-day--selected { background: #e6f0ff; outline: 2px solid var(--blue); outline-offset: -2px; }
+.cal-strip-day__dow { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.cal-strip-day__num { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .site-header__inner { flex-wrap: wrap; }
-  .city-selector { max-width: 100%; }
+  .city-selector { max-width: 100%; order: 3; flex: 1 1 100%; }
   .filter-bar__inner { gap: .4rem; }
+  .filter-bar__inner select,
+  .filter-bar__inner input[type="date"] { font-size: .85rem; }
+  .radius-selector { flex-wrap: wrap; }
+  .view-toggle { align-self: stretch; }
+  .view-toggle-btn { flex: 1; text-align: center; }
   .cards-grid { grid-template-columns: 1fr; }
   .modal { padding: 1.25rem; }
+  .modal-actions { flex-direction: column; }
+  .cal-header { flex-wrap: wrap; gap: .5rem; }
+  .cal-title { order: -1; flex: 1 1 100%; text-align: left; font-size: 1.1rem; }
+  .cal-day { min-height: 56px; }
 }
