@@ -5,11 +5,15 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const RESEND_API_KEY  = Deno.env.get('RESEND_API_KEY')!;
-const SUPABASE_URL    = Deno.env.get('SUPABASE_URL')!;
-const SERVICE_ROLE_KEY= Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+/**
+ * Exported for testing. Reads env vars at request time so tests can
+ * inject values via Deno.env.set() before calling this function.
+ */
+export async function handler(req: Request): Promise<Response> {
+  const RESEND_API_KEY   = Deno.env.get('RESEND_API_KEY') ?? '';
+  const SUPABASE_URL     = Deno.env.get('SUPABASE_URL') ?? '';
+  const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
-serve(async (req: Request) => {
   try {
     const body = await req.json();
     // Supabase Database Webhook payload: { type, table, record, old_record }
@@ -52,4 +56,10 @@ serve(async (req: Request) => {
     console.error('[notify-admin]', err);
     return new Response('error', { status: 500 });
   }
-});
+}
+
+// Start the HTTP server only when deployed as a Supabase Edge Function,
+// not when this module is imported by the test runner.
+if (import.meta.main) {
+  serve(handler);
+}

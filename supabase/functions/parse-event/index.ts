@@ -4,16 +4,13 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-const N8N_WEBHOOK_URL   = Deno.env.get('N8N_WEBHOOK_URL')!;
-const N8N_WEBHOOK_TOKEN = Deno.env.get('N8N_WEBHOOK_TOKEN')!;
-
 // Simple rate limiting: max 5 requests per IP per minute (in-memory, resets on cold start)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT   = 5;
 const WINDOW_MS    = 60_000;
 
 function isRateLimited(ip: string): boolean {
-  const now  = Date.now();
+  const now   = Date.now();
   const entry = rateLimitMap.get(ip);
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
@@ -24,11 +21,18 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
-serve(async (req: Request) => {
+/**
+ * Exported for testing. Reads env vars at request time so tests can
+ * inject values via Deno.env.set() before calling this function.
+ */
+export async function handler(req: Request): Promise<Response> {
+  const N8N_WEBHOOK_URL   = Deno.env.get('N8N_WEBHOOK_URL') ?? '';
+  const N8N_WEBHOOK_TOKEN = Deno.env.get('N8N_WEBHOOK_TOKEN') ?? '';
+
   // CORS for GitHub Pages origin
-  const origin = req.headers.get('origin') ?? '';
+  const origin  = req.headers.get('origin') ?? '';
   const allowed = origin.endsWith('cubansocial.com') || origin.includes('github.io');
-  const corsHeaders = allowed
+  const corsHeaders: Record<string, string> = allowed
     ? { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type' }
     : {};
@@ -61,7 +65,7 @@ serve(async (req: Request) => {
     const n8nRes = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
+        'Content-Type':    'application/json',
         'X-Webhook-Token': N8N_WEBHOOK_TOKEN,
       },
       body: JSON.stringify({ text: payload.text, clarifications: payload.clarifications ?? {} }),
@@ -78,4 +82,11 @@ serve(async (req: Request) => {
       status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-});
+}
+
+// Start the HTTP server only when deployed as a Supabase Edge Function,
+// not when this module is imported by the test runner.
+if (import.meta.main) {
+  serve(handler);
+}
+
