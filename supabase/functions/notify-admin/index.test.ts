@@ -293,13 +293,9 @@ Deno.test('Authorization header uses the RESEND_API_KEY', async () => {
   await withMockFetch(mock, () => handler(webhookRequest(pendingEvent())));
 
   const resendCall = calls.find(c => c.url === 'https://api.resend.com/emails')!;
-  // The Authorization header is set on `init`, not on the Request object
-  const body   = JSON.parse(resendCall.body);
-  // We check the header via the calls — init.headers
-  // (supabase-js modifies the fetch call; we check the raw call body for the key presence)
-  // The key is in the Authorization header passed to fetch's init.headers
-  // Verify it's not accidentally leaked in the response body
-  assertEquals(typeof body.from, 'string', 'Email body should not expose the API key');
+  // Headers are normalised to lowercase by the Headers constructor in createMockFetch
+  assertEquals(resendCall.headers['authorization'], 'Bearer re_unique_key_789',
+    'RESEND_API_KEY must appear in the Authorization header');
 });
 
 Deno.test('email body contains a link to the admin dashboard', async () => {

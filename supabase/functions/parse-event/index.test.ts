@@ -24,9 +24,9 @@ import { handler } from './index.ts';
 /** Counter used to generate unique IP addresses per test. */
 let ipCounter = 1;
 
-/** Returns a fresh IP address string to avoid rate-limiter cross-contamination. */
+/** Returns a unique string used as a rate-limiter key (Map key, not a real IP). */
 function uniqueIp(): string {
-  return `10.0.0.${ipCounter++}`;
+  return `test-ip-${ipCounter++}`;
 }
 
 /** Set all required env vars before each test. */

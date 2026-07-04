@@ -21,6 +21,29 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
+/** Returns CORS headers when the origin is an allowed domain; empty object otherwise. */
+function buildCorsHeaders(origin: string): Record<string, string> {
+  const allowed = origin.endsWith('cubansocial.com') || origin.includes('github.io');
+  if (!allowed) return {};
+  return {
+    'Access-Control-Allow-Origin':  origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
+/** Convenience: return a JSON error response with optional extra headers. */
+function jsonError(
+  code: string,
+  status: number,
+  extra: Record<string, string> = {},
+): Response {
+  return new Response(JSON.stringify({ error: code }), {
+    status,
+    headers: { ...extra, 'Content-Type': 'application/json' },
+  });
+}
+
 /**
  * Exported for testing. Reads env vars at request time so tests can
  * inject values via Deno.env.set() before calling this function.
@@ -29,35 +52,24 @@ export async function handler(req: Request): Promise<Response> {
   const N8N_WEBHOOK_URL   = Deno.env.get('N8N_WEBHOOK_URL') ?? '';
   const N8N_WEBHOOK_TOKEN = Deno.env.get('N8N_WEBHOOK_TOKEN') ?? '';
 
-  // CORS for GitHub Pages origin
-  const origin  = req.headers.get('origin') ?? '';
-  const allowed = origin.endsWith('cubansocial.com') || origin.includes('github.io');
-  const corsHeaders: Record<string, string> = allowed
-    ? { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type' }
-    : {};
+  const cors = buildCorsHeaders(req.headers.get('origin') ?? '');
 
-  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders });
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST')    return new Response('Method not allowed', { status: 405 });
 
   const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-  if (isRateLimited(ip)) {
-    return new Response(JSON.stringify({ error: 'rate_limited' }), {
-      status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
+  if (isRateLimited(ip)) return jsonError('rate_limited', 429, cors);
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'invalid_json' }), { status: 400, headers: corsHeaders });
+    return jsonError('invalid_json', 400, cors);
   }
 
-  // Validate minimum required fields
   const payload = body as Record<string, unknown>;
   if (typeof payload.text !== 'string' || payload.text.trim().length < 5) {
-    return new Response(JSON.stringify({ error: 'text_required' }), { status: 400, headers: corsHeaders });
+    return jsonError('text_required', 400, cors);
   }
 
   // Forward to n8n with secret token
@@ -73,14 +85,12 @@ export async function handler(req: Request): Promise<Response> {
 
     const data = await n8nRes.json();
     return new Response(JSON.stringify(data), {
-      status: n8nRes.status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status:  n8nRes.status,
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('[parse-event] n8n error:', err);
-    return new Response(JSON.stringify({ error: 'upstream_unavailable' }), {
-      status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonError('upstream_unavailable', 503, cors);
   }
 }
 
@@ -89,4 +99,5 @@ export async function handler(req: Request): Promise<Response> {
 if (import.meta.main) {
   serve(handler);
 }
+
 

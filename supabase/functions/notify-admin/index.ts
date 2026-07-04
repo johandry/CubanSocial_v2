@@ -5,6 +5,43 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
+/** Build the subject line and HTML body for a new-event notification. */
+function buildNotificationEmail(event: Record<string, unknown>) {
+  return {
+    subject: `[CubanSocial] New event pending: ${event.name}`,
+    html: `
+      <h2>New event submitted for review</h2>
+      <p><strong>${event.name}</strong></p>
+      <p>Submitted: ${new Date(String(event.created_at)).toLocaleString('en-US')}</p>
+      <p><a href="https://cubansocial.com/admin">Review in Admin Dashboard →</a></p>
+    `,
+  };
+}
+
+/** Send a single admin notification email via Resend. */
+async function sendAdminEmail(
+  to: string,
+  subject: string,
+  html: string,
+  apiKey: string,
+): Promise<void> {
+  await fetch(RESEND_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({
+      from: 'noreply@cubansocial.com',
+      to:   [to],
+      subject,
+      html,
+    }),
+  });
+}
+
 /**
  * Exported for testing. Reads env vars at request time so tests can
  * inject values via Deno.env.set() before calling this function.
@@ -23,32 +60,13 @@ export async function handler(req: Request): Promise<Response> {
     }
 
     // Fetch all admin emails using service role (bypasses RLS)
-    const adminDb = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-    const { data: admins } = await adminDb.from('admins').select('email');
+    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    const { data: admins } = await supabase.from('admins').select('email');
     if (!admins?.length) return new Response('no admins', { status: 200 });
 
-    const subject = `[CubanSocial] New event pending: ${event.name}`;
-    const htmlBody = `
-      <h2>New event submitted for review</h2>
-      <p><strong>${event.name}</strong></p>
-      <p>Submitted: ${new Date(event.created_at).toLocaleString('en-US')}</p>
-      <p><a href="https://cubansocial.com/admin">Review in Admin Dashboard →</a></p>
-    `;
-
+    const { subject, html } = buildNotificationEmail(event);
     for (const admin of admins) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from:    'noreply@cubansocial.com',
-          to:      [admin.email],
-          subject,
-          html:    htmlBody,
-        }),
-      });
+      await sendAdminEmail(admin.email, subject, html, RESEND_API_KEY);
     }
 
     return new Response('ok', { status: 200 });
